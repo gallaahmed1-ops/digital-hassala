@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>غايتي | Ghayaty - تتبع أهداف التوفير والمدخرات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+         :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --border: #334155;
+            --gold: #eab308;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .header-card,
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+        
+        .overall-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        
+        .stat-box {
+            background-color: #0f172a;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        
+        .stat-box span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: block;
+        }
+        
+        .stat-box strong {
+            font-size: 1.2rem;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        .saved {
+            color: var(--success);
+        }
+        
+        .spent {
+            color: var(--danger);
+        }
+        
+        .target {
+            color: var(--accent);
+        }
+        /* قسم الشارات والأوسمة */
+        
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .badge-card {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            opacity: 0.4;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+        }
+        
+        .badge-card.unlocked {
+            opacity: 1;
+            filter: grayscale(0%);
+            border-color: var(--gold);
+            box-shadow: 0 0 12px rgba(234, 179, 8, 0.2);
+        }
+        
+        .badge-icon {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .badge-name {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--text);
+            display: block;
+        }
+        
+        .badge-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        input,
+        select {
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: #0f172a;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+        }
+        
+        button {
+            padding: 11px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--accent);
+            color: #0f172a;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: var(--accent-hover);
+            color: #fff;
+        }
+        
+        .btn-action {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            width: auto;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+        
+        .btn-edit:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .btn-danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        
+        .actions-group {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .goal-card {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .goal-card.completed-card {
+            border-color: var(--gold);
+            background: linear-gradient(145deg, #0f172a, #1e1b4b);
+        }
+        
+        .goal-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .goal-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--accent);
+        }
+        
+        .completed-card .goal-title {
+            color: var(--gold);
+        }
+        
+        .progress-bar-bg {
+            background-color: var(--card-bg);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar-fill {
+            background-color: var(--success);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        
+        .completed-card .progress-bar-fill {
+            background-color: var(--gold);
+        }
+        
+        .goal-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        
+        .history-section {
+            margin-top: 15px;
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+        }
+        
+        .history-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .history-list {
+            list-style: none;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        
+        .type-deposit {
+            color: var(--success);
+        }
+        
+        .type-withdraw {
+            color: var(--danger);
+        }
+        
+        .chart-container {
+            position: relative;
+            max-width: 320px;
+            margin: 15px auto 0 auto;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- الهيدر والإحصائيات -->
+        <div class="header-card">
+            <h1>🎯 غايتي | Ghayaty</h1>
+            <div class="overall-stats">
+                <div class="stat-box">
+                    <span>إجمالي الأهداف</span>
+                    <strong class="target" id="totalTarget">0 ج.م</strong>
+                </div>
+                <div class="stat-box">
+                    <span>إجمالي المحوش</span>
+                    <strong class="saved" id="totalSaved">0 ج.م</strong>
+                </div>
+                <div class="stat-box">
+                    <span>إجمالي المصروف</span>
+                    <strong class="spent" id="totalSpent">0 ج.م</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- لوحة الأوسمة والإنجازات -->
+        <div class="card">
+            <div class="section-title" style="color: var(--gold);">🏆 أوسمة وإنجازات التوفير</div>
+            <div class="badges-grid">
+                <div class="badge-card" id="badge-first">
+                    <span class="badge-icon">🐣</span>
+                    <span class="badge-name">الخطوة الأولى</span>
+                    <span class="badge-desc">أول إيداع في التطبيق</span>
+                </div>
+                <div class="badge-card" id="badge-streak">
+                    <span class="badge-icon">🔥</span>
+                    <span class="badge-name">المداوم</span>
+                    <span class="badge-desc">3 عمليات تحويش</span>
+                </div>
+                <div class="badge-card" id="badge-multi">
+                    <span class="badge-icon">🛡️</span>
+                    <span class="badge-name">المخطط</span>
+                    <span class="badge-desc">العمل على هدفين فأكثر</span>
+                </div>
+                <div class="badge-card" id="badge-winner">
+                    <span class="badge-icon">👑</span>
+                    <span class="badge-name">صائد الأهداف</span>
+                    <span class="badge-desc">إكمال هدف بنسبة 100%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- الرسم البياني -->
+        <div class="card" id="chartCard" style="display: none;">
+            <div class="section-title">📊 توزيع المدخرات المجمعة لكل هدف</div>
+            <div class="chart-container">
+                <canvas id="savingsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- إضافة أو تعديل هدف -->
+        <div class="card">
+            <div class="section-title" id="formTitle">إضافة هدف جديد</div>
+            <form id="goalForm">
+                <input type="hidden" id="editGoalId" value="">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>اسم الهدف</label>
+                        <input type="text" id="goalTitle" placeholder="مثال: شراء هارد SSD 1 تيرا" required>
+                    </div>
+                    <div class="form-group">
+                        <label>السعر / المبلغ المطلوب</label>
+                        <input type="number" id="goalAmount" placeholder="مثال: 3500" required min="1">
+                    </div>
+                </div>
+                <button type="submit" id="saveGoalBtn">حفظ الهدف</button>
+                <button type="button" id="cancelEditBtn" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); margin-top: 8px; display: none;" onclick="resetGoalForm()">إلغاء التعديل</button>
+            </form>
+        </div>
+
+        <!-- تسجيل معاملة إيداع/صرف -->
+        <div class="card">
+            <div class="section-title">💸 تسجيل حركة (تحويش / صرف)</div>
+            <form id="transactionForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>اختر الهدف</label>
+                        <select id="selectGoal" required>
+                            <option value="">-- اختر هدف --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع العملية</label>
+                        <select id="transType">
+                            <option value="deposit">تحويش / إيداع (+)</option>
+                            <option value="withdraw">صرف / سحب (-)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>المبلغ</label>
+                        <input type="number" id="transAmount" placeholder="المبلغ" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>ملاحظة / السبب (اختياري)</label>
+                        <input type="text" id="transNote" placeholder="مثال: قسط الشهر / سحب للطوارئ">
+                    </div>
+                </div>
+                <button type="submit" style="background-color: var(--success); color: #000;">تسجيل العملية</button>
+            </form>
+        </div>
+
+        <!-- قائمة الأهداف النشطة -->
+        <div class="card">
+            <div class="section-title">⏳ الأهداف الحالية القائمة</div>
+            <div id="activeGoalsContainer"></div>
+        </div>
+
+        <!-- قسم الأهداف المكتملة -->
+        <div class="card" id="completedSection" style="display: none;">
+            <div class="section-title" style="color: var(--gold);">🏆 الأهداف المحققة والمكتملة</div>
+            <div id="completedGoalsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let goals = JSON.parse(localStorage.getItem('ghayaty_goals')) || [];
+        let savingsChart = null;
+
+        const goalForm = document.getElementById('goalForm');
+        const transactionForm = document.getElementById('transactionForm');
+        const selectGoal = document.getElementById('selectGoal');
+        const activeGoalsContainer = document.getElementById('activeGoalsContainer');
+        const completedGoalsContainer = document.getElementById('completedGoalsContainer');
+        const completedSection = document.getElementById('completedSection');
+        const chartCard = document.getElementById('chartCard');
+
+        const totalTargetEl = document.getElementById('totalTarget');
+        const totalSavedEl = document.getElementById('totalSaved');
+        const totalSpentEl = document.getElementById('totalSpent');
+
+        function saveData() {
+            localStorage.setItem('ghayaty_goals', JSON.stringify(goals));
+            render();
+        }
+
+        goalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('editGoalId').value;
+            const title = document.getElementById('goalTitle').value;
+            const targetAmount = parseFloat(document.getElementById('goalAmount').value);
+
+            if (editId) {
+                const goal = goals.find(g => g.id === parseInt(editId));
+                if (goal) {
+                    goal.title = title;
+                    goal.targetAmount = targetAmount;
+                }
+            } else {
+                const newGoal = {
+                    id: Date.now(),
+                    title: title,
+                    targetAmount: targetAmount,
+                    currentSaved: 0,
+                    totalSpent: 0,
+                    celebrated: false,
+                    history: []
+                };
+                goals.push(newGoal);
+            }
+
+            resetGoalForm();
+            saveData();
+        });
+
+        function editGoal(id) {
+            const goal = goals.find(g => g.id === id);
+            if (!goal) return;
+
+            document.getElementById('editGoalId').value = goal.id;
+            document.getElementById('goalTitle').value = goal.title;
+            document.getElementById('goalAmount').value = goal.targetAmount;
+
+            document.getElementById('formTitle').innerText = 'تعديل الهدف الحالي';
+            document.getElementById('saveGoalBtn').innerText = 'تحديث البيانات';
+            document.getElementById('cancelEditBtn').style.display = 'block';
+
+            window.scrollTo({
+                top: document.getElementById('goalForm').offsetTop - 20,
+                behavior: 'smooth'
+            });
+        }
+
+        function resetGoalForm() {
+            document.getElementById('editGoalId').value = '';
+            document.getElementById('goalTitle').value = '';
+            document.getElementById('goalAmount').value = '';
+            document.getElementById('formTitle').innerText = 'إضافة هدف جديد';
+            document.getElementById('saveGoalBtn').innerText = 'حفظ الهدف';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+        }
+
+        transactionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const goalId = parseInt(selectGoal.value);
+            const type = document.getElementById('transType').value;
+            const amount = parseFloat(document.getElementById('transAmount').value);
+            const note = document.getElementById('transNote').value || (type === 'deposit' ? 'تحويش' : 'صرف');
+
+            const goal = goals.find(g => g.id === goalId);
+            if (!goal) return;
+
+            if (type === 'deposit') {
+                goal.currentSaved += amount;
+            } else {
+                goal.currentSaved -= amount;
+                goal.totalSpent += amount;
+            }
+
+            if (goal.currentSaved >= goal.targetAmount && !goal.celebrated) {
+                goal.celebrated = true;
+                triggerConfetti();
+            } else if (goal.currentSaved < goal.targetAmount) {
+                goal.celebrated = false;
+            }
+
+            goal.history.unshift({
+                id: Date.now(),
+                type: type,
+                amount: amount,
+                note: note,
+                date: new Date().toLocaleDateString('ar-EG')
+            });
+
+            document.getElementById('transAmount').value = '';
+            document.getElementById('transNote').value = '';
+            saveData();
+        });
+
+        function deleteGoal(id) {
+            if (confirm('هل أنت تأكد من حذف هذا الهدف وجميع سجلاته؟')) {
+                goals = goals.filter(g => g.id !== id);
+                saveData();
+            }
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 120,
+                spread: 70,
+                origin: {
+                    y: 0.6
+                }
+            });
+        }
+
+        // فحص وتحديث الأوسمة
+        function updateBadges(totalDepositsCount, completedGoalsCount) {
+            const bFirst = document.getElementById('badge-first');
+            const bStreak = document.getElementById('badge-streak');
+            const bMulti = document.getElementById('badge-multi');
+            const bWinner = document.getElementById('badge-winner');
+
+            if (totalDepositsCount >= 1) bFirst.classList.add('unlocked');
+            else bFirst.classList.remove('unlocked');
+
+            if (totalDepositsCount >= 3) bStreak.classList.add('unlocked');
+            else bStreak.classList.remove('unlocked');
+
+            if (goals.length >= 2) bMulti.classList.add('unlocked');
+            else bMulti.classList.remove('unlocked');
+
+            if (completedGoalsCount >= 1) bWinner.classList.add('unlocked');
+            else bWinner.classList.remove('unlocked');
+        }
+
+        function updateChart() {
+            const validGoals = goals.filter(g => g.currentSaved > 0);
+
+            if (validGoals.length === 0) {
+                chartCard.style.display = 'none';
+                return;
+            }
+
+            chartCard.style.display = 'block';
+
+            const labels = validGoals.map(g => g.title);
+            const data = validGoals.map(g => g.currentSaved);
+
+            if (savingsChart) {
+                savingsChart.destroy();
+            }
+
+            const ctx = document.getElementById('savingsChart').getContext('2d');
+            savingsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#38bdf8', '#22c55e', '#eab308', '#f43f5e', '#a855f7', '#6366f1'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#1e293b'
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#f8fafc',
+                                font: {
+                                    family: 'Tajawal'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function render() {
+            selectGoal.innerHTML = '<option value="">-- اختر هدف --</option>';
+            goals.forEach(g => {
+                selectGoal.innerHTML += `<option value="${g.id}">${g.title}</option>`;
+            });
+
+            let grandTarget = 0;
+            let grandSaved = 0;
+            let grandSpent = 0;
+            let totalDepositsCount = 0;
+            let completedGoalsCount = 0;
+
+            activeGoalsContainer.innerHTML = '';
+            completedGoalsContainer.innerHTML = '';
+
+            let hasActive = false;
+            let hasCompleted = false;
+
+            goals.forEach(goal => {
+                grandTarget += goal.targetAmount;
+                grandSaved += goal.currentSaved;
+                grandSpent += goal.totalSpent;
+
+                // إحصاء عمليات الإيداع للأوسمة
+                goal.history.forEach(h => {
+                    if (h.type === 'deposit') totalDepositsCount++;
+                });
+
+                let percentage = Math.min(Math.round((goal.currentSaved / goal.targetAmount) * 100), 100);
+                if (percentage < 0) percentage = 0;
+
+                const isCompleted = goal.currentSaved >= goal.targetAmount;
+                if (isCompleted) completedGoalsCount++;
+
+                const goalCard = document.createElement('div');
+                goalCard.className = `goal-card ${isCompleted ? 'completed-card' : ''}`;
+
+                let historyHTML = '';
+                goal.history.forEach(h => {
+                    const isDeposit = h.type === 'deposit';
+                    historyHTML += `
+                        <li class="history-item">
+                            <span>${h.date} - ${h.note}</span>
+                            <span class="${isDeposit ? 'type-deposit' : 'type-withdraw'}">
+                                ${isDeposit ? '+' : '-'}${h.amount} ج.م
+                            </span>
+                        </li>
+                    `;
+                });
+
+                goalCard.innerHTML = `
+                    <div class="goal-title-row">
+                        <span class="goal-title">${isCompleted ? '🎉 ' : ''}${goal.title}</span>
+                        <div class="actions-group">
+                            <button class="btn-action btn-edit" onclick="editGoal(${goal.id})">تعديل</button>
+                            <button class="btn-action btn-danger" onclick="deleteGoal(${goal.id})">حذف</button>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${percentage}%;"></div>
+                    </div>
+
+                    <div class="goal-details">
+                        <span>المُجمع: <strong style="color:${isCompleted ? 'var(--gold)' : 'var(--success)'};">${goal.currentSaved} ج.م</strong> (${percentage}%)</span>
+                        <span>الهدف: <strong>${goal.targetAmount} ج.م</strong></span>
+                        <span>صرف منه: <strong style="color:var(--danger);">${goal.totalSpent} ج.م</strong></span>
+                    </div>
+
+                    <div class="history-section">
+                        <div class="history-title">سجل العمليات:</div>
+                        <ul class="history-list">
+                            ${historyHTML || '<li style="color:var(--text-muted); font-size:0.8rem;">لا توجد عمليات مسجلة بعد.</li>'}
+                        </ul>
+                    </div>
+                `;
+
+                if (isCompleted) {
+                    completedGoalsContainer.appendChild(goalCard);
+                    hasCompleted = true;
+                } else {
+                    activeGoalsContainer.appendChild(goalCard);
+                    hasActive = true;
+                }
+            });
+
+            if (!hasActive) {
+                activeGoalsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">لا توجد أهداف نشطة حالياً.</p>';
+            }
+
+            completedSection.style.display = hasCompleted ? 'block' : 'none';
+
+            totalTargetEl.innerText = `${grandTarget.toLocaleString()} ج.م`;
+            totalSavedEl.innerText = `${grandSaved.toLocaleString()} ج.م`;
+            totalSpentEl.innerText = `${grandSpent.toLocaleString()} ج.م`;
+
+            updateBadges(totalDepositsCount, completedGoalsCount);
+            updateChart();
+        }
+
+        render();
+    </script>
+</body>
+
+</html>
